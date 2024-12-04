@@ -11,8 +11,8 @@ const userSchema = new Schema({
   admin: { type: Boolean, required: true },
   posts: [{ type: mongoose.Types.ObjectId, required: false, ref: "Post" }],
   alerts: [{ type: mongoose.Types.ObjectId, required: false, ref: "Alert" }],
-  resetToken: { type: String, required: false }, // Add resetToken to store the reset token
-  tokenExpiration: { type: Date, required: false }, // Add tokenExpiration to store the expiration time of the reset token
+  resetToken: { type: String, required: false },
+  tokenExpiration: { type: Date, required: false },
 });
 
 userSchema.plugin(uniqueValidator);

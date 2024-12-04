@@ -61,20 +61,13 @@ const getAllAlerts = async (req, res, next) => {
 const createAlert = async (req, res, next) => {
   const { title, description, creator } = req.body;
 
-  // let coordinates;
-  // try {
-  //   coordinates = await getCoordsForAddress(address);
-  // } catch (error) {
-  //   return next(error);
-  // }
-
   const createdAlert = new Alert({
     title,
     description,
     creator,
   });
 
-  console.log(createdAlert.title); //
+  console.log(createdAlert.title);
   let user;
   try {
     user = await User.findById(creator);
@@ -93,17 +86,13 @@ const createAlert = async (req, res, next) => {
 
   try {
     const sess = await mongoose.startSession();
-    console.log("1");
 
     sess.startTransaction();
-    await createdAlert.save({ session: sess }); //
-    console.log("2");
+    await createdAlert.save({ session: sess });
 
-    user.alerts.push(createdAlert); //
-    console.log("3");
+    user.alerts.push(createdAlert);
 
     await user.save({ session: sess });
-    console.log("4");
 
     await sess.commitTransaction();
   } catch (err) {

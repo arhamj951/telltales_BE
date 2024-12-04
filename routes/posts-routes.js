@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/allapprovedposts", postsControllers.getAllApprovedPosts);
 router.get("/adminposts/:uid", postsControllers.getPostByPendingApproval);
-router.get("/:pid", postsControllers.getPostById); // unused right now, for future learning
+router.get("/:pid", postsControllers.getPostById);
 router.get("/user/:uid", postsControllers.getPostsByUserId);
 
 router.post(
