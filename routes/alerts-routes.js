@@ -11,4 +11,6 @@ router.post("/", alertsControllers.createAlert);
 
 router.get("/:uid/alerts", alertsControllers.getAllAlerts);
 
+router.delete("/deletealerts");
+
 module.exports = router;

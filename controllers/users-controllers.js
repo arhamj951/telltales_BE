@@ -55,20 +55,17 @@ const signup = async (req, res, next) => {
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
-    const error = new HttpError(
-      "Signing up failed, please try again later.",
-      500
-    );
+    const error = new HttpError("Signing up failed, user already exists.", 500);
     return next(error);
   }
 
-  if (existingUser) {
-    const error = new HttpError(
-      "User exists already, please login instead.",
-      422
-    );
-    return next(error);
-  }
+  // if (existingUser) {
+  //   const error = new HttpError(
+  //     "User exists already, please login instead.",
+  //     422
+  //   );
+  //   return next(error);
+  // }
 
   const createdUser = new User({
     name,
@@ -81,7 +78,7 @@ const signup = async (req, res, next) => {
     await createdUser.save();
   } catch (err) {
     const error = new HttpError(
-      "Signing up failed, please try again later.",
+      "Signing up failed due to some issue, please try again later.",
       500
     );
     return next(error);

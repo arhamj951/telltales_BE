@@ -6,8 +6,8 @@ const postsControllers = require("../controllers/posts-controllers");
 const router = express.Router();
 
 router.get("/allapprovedposts", postsControllers.getAllApprovedPosts);
-router.get("/adminposts", postsControllers.getPostByPendingApproval);
-router.get("/:pid", postsControllers.getPostById);
+router.get("/adminposts/:uid", postsControllers.getPostByPendingApproval);
+router.get("/:pid", postsControllers.getPostById); // unused right now, for future learning
 router.get("/user/:uid", postsControllers.getPostsByUserId);
 
 router.post(
@@ -17,13 +17,13 @@ router.post(
 );
 
 router.patch(
-  "/update/:pid",
+  "/update/:pid/:uid",
   [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
   postsControllers.updatePost
 );
 
-router.patch("/adminposts/:pid", postsControllers.updatePostApproval);
+router.patch("/adminposts/:pid/:uid", postsControllers.updatePostApproval);
 
-router.delete("/delete/:pid", postsControllers.deletePost);
+router.delete("/delete/:pid/:uid", postsControllers.deletePost);
 
 module.exports = router;

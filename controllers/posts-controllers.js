@@ -1,9 +1,6 @@
-const uuid = require("uuid/v4");
 const { validationResult } = require("express-validator");
-const mongoose = require("mongoose");
 
 const HttpError = require("../models/http-error");
-const getCoordsForAddress = require("../util/location");
 const Post = require("../models/post");
 const User = require("../models/user");
 const Alert = require("../models/alert");
@@ -31,6 +28,7 @@ const getAllApprovedPosts = async (req, res, next) => {
   });
 };
 
+// unused right now, for future learning
 const getPostById = async (req, res, next) => {
   const postId = req.params.pid;
 
@@ -57,6 +55,33 @@ const getPostById = async (req, res, next) => {
 };
 
 const getPostByPendingApproval = async (req, res, next) => {
+  let userId = req.params.uid; // getting id to check if the request is sent by admin or not
+
+  let user;
+  try {
+    user = await User.findById(userId); // Find the user by their ID
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not check user.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("User not found.", 404);
+    return next(error);
+  }
+
+  if (!user.admin) {
+    // checking if admin
+    const error = new HttpError(
+      "Access denied. Only admins can update post approvals.",
+      403
+    );
+    return next(error);
+  }
+
   let postsWithPendingApproval;
   try {
     postsWithPendingApproval = await Post.find({ Approval: "Pending" });
@@ -115,13 +140,6 @@ const createPost = async (req, res, next) => {
   }
 
   const { title, description, tag, creator } = req.body;
-
-  // let coordinates;
-  // try {
-  //   coordinates = await getCoordsForAddress(address);
-  // } catch (error) {
-  //   return next(error);
-  // }
 
   const createdPost = new Post({
     title,
@@ -183,6 +201,31 @@ const createPost = async (req, res, next) => {
 const updatePostApproval = async (req, res, next) => {
   const { Approval } = req.body;
   const postId = req.params.pid;
+  const userId = req.params.uid;
+
+  let user;
+  try {
+    user = await User.findById(userId); // Find the user by their ID
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not check user.",
+      500
+    );
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("User not found.", 404);
+    return next(error);
+  }
+
+  if (!user.admin) {
+    const error = new HttpError(
+      "Access denied. Only admins can update post approvals.",
+      403
+    );
+    return next(error);
+  }
 
   let post;
   try {
@@ -194,6 +237,14 @@ const updatePostApproval = async (req, res, next) => {
     );
     return next(error);
   }
+
+  // if (user._id.toString() !== post.creator._id.toString()) {
+  //   const error = new HttpError(
+  //     "Something went wrong, could not delete post.",
+  //     500
+  //   );
+  //   return next(error);
+  // }
 
   if (Approval) {
     post.Approval = Approval;
@@ -224,6 +275,17 @@ const updatePost = async (req, res, next) => {
 
   const { title, description, tag } = req.body;
   const postId = req.params.pid;
+  const userId = req.params.uid;
+
+  let user;
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    const error = new HttpError("could not find the user.", 500);
+    return next(error);
+  }
+
+  console.log("user posts", user.posts);
 
   let post;
   try {
@@ -231,6 +293,14 @@ const updatePost = async (req, res, next) => {
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not update post.",
+      500
+    );
+    return next(error);
+  }
+
+  if (user._id.toString() !== post.creator._id.toString()) {
+    const error = new HttpError(
+      "Something went wrong, could not delete post.",
       500
     );
     return next(error);
@@ -256,6 +326,15 @@ const updatePost = async (req, res, next) => {
 
 const deletePost = async (req, res, next) => {
   const postId = req.params.pid;
+  const userId = req.params.uid;
+
+  let user;
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    const error = new HttpError("could not find the user.", 500);
+    return next(error);
+  }
 
   let post;
   try {
@@ -271,6 +350,14 @@ const deletePost = async (req, res, next) => {
 
   if (!post) {
     const error = new HttpError("Could not find post for this id.", 404);
+    return next(error);
+  }
+
+  if (user._id.toString() !== post.creator._id.toString()) {
+    const error = new HttpError(
+      "Something went wrong, could not delete post.",
+      500
+    );
     return next(error);
   }
 

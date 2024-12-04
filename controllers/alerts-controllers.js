@@ -1,5 +1,3 @@
-const uuid = require("uuid/v4");
-const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 
 const Alert = require("../models/alert");
@@ -61,14 +59,7 @@ const getAllAlerts = async (req, res, next) => {
 };
 
 const createAlert = async (req, res, next) => {
-  //     const errors = validationResult(req);
-  //   if (!errors.isEmpty()) {
-  //     return next(
-  //       new HttpError("Invalid inputs passed, please check your data.", 422)
-  //     );
-  //   }
-
-  const { title, description, creator, image } = req.body;
+  const { title, description, creator } = req.body;
 
   // let coordinates;
   // try {
@@ -80,8 +71,6 @@ const createAlert = async (req, res, next) => {
   const createdAlert = new Alert({
     title,
     description,
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28aerial_view%29.jpg/400px-Empire_State_Building_%28aerial_view%29.jpg", // => File Upload module, will be replaced with real image url
     creator,
   });
 
