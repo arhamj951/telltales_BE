@@ -149,27 +149,36 @@ const login = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   const { token, password } = req.body;
 
-  console.log("In resetPassword function. Token received:", token);
-
-  let user;
   try {
-    user = await User.findOne({
+    const user = await User.findOne({
       resetToken: token,
       tokenExpiration: { $gt: Date.now() },
     });
 
     if (!user) {
-      console.log("No user found or token has expired.");
+      console.log("Reset token is invalid or expired for user:", token);
+      const error = new HttpError("Token expired or invalid.", 401);
+      return next(error);
+    }
+
+    if (!user.password) {
       const error = new HttpError(
-        "Could not find user or token expired/invalid.",
+        "User password not found in the database.",
         500
       );
       return next(error);
     }
 
-    console.log("User found:", user);
+    const isOldPassSame = await bcrypt.compare(password, user.password);
 
-    const bcrypt = require("bcryptjs");
+    if (isOldPassSame) {
+      const error = new HttpError(
+        "Old password and new password are the same. Cannot change the password.",
+        401
+      );
+      return next(error);
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
     user.password = hashedPassword;
@@ -178,11 +187,10 @@ const resetPassword = async (req, res, next) => {
 
     await user.save();
 
-    console.log("Password updated successfully");
-
+    console.log("Password updated successfully for user:", user.email);
     res.status(200).json({ message: "Password has been reset successfully." });
   } catch (err) {
-    console.error("Error in resetPassword function:", err);
+    console.error("Error in resetPassword function:", err.message);
     const error = new HttpError(
       "Could not reset password, please try again later.",
       500
