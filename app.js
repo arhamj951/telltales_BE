@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const postsRoutes = require("./routes/posts-routes");
 const usersRoutes = require("./routes/users-routes");
 const alertRoutes = require("./routes/alerts-routes");
+const nodemailerRoutes = require("./routes/nodemailer-routes");
 const HttpError = require("./models/http-error");
 
 const app = express();
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 app.use("/api/posts", postsRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/alerts", alertRoutes);
+app.use("/api", nodemailerRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route.", 404);
