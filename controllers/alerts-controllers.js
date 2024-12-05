@@ -106,6 +106,33 @@ const createAlert = async (req, res, next) => {
   res.status(201).json({ alert: createdAlert });
 };
 
+const updateAlert = async (req, res, next) => {
+  const alertId = req.params.alertId;
+
+  let alert;
+  try {
+    alert = await Alert.findById(alertId);
+  } catch (err) {
+    const error = new HttpError("could not find the Alert.", 500);
+    return next(error);
+  }
+
+  alert.read = true;
+
+  try {
+    await alert.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not update alert.",
+      500
+    );
+    return next(error);
+  }
+
+  res.status(200).json({ message: "Alert Updated" });
+};
+
 exports.createAlert = createAlert;
 exports.getAlerts = getAlerts;
 exports.getAllAlerts = getAllAlerts;
+exports.updateAlert = updateAlert;

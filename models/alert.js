@@ -11,6 +11,7 @@ const alertSchema = new Schema({
     required: true,
     ref: "User",
   },
+  read: { type: Boolean, required: false },
 });
 
 module.exports = mongoose.model("Alert", alertSchema);
